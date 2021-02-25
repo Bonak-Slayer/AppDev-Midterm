@@ -1,0 +1,10 @@
+body {
+    padding: 10px;
+}
+
+.listing_container {
+	border: solid;
+	border-color: #BAE1FF;
+	border-radius: 3px;
+	margin: 20px;
+}

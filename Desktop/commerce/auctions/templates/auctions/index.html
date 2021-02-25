@@ -1,0 +1,63 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block style %}
+	.listing_container {
+		border: 3px solid;
+		border-color: #BAE1FF;
+		border-radius: 10px;
+		padding: 10px;
+		float: left;
+		margin: 10px;
+		height: 300px;
+		width: 95%;
+	}
+
+	.listing_details {
+		padding-left: 10px;
+		padding-right: 10px;
+		float: left;
+	}
+
+	#img_div {
+		padding-right:20px;
+	}
+
+	h4 {
+		padding-top: 10px;
+	}
+{% endblock %}
+
+{% block body %}
+    <h2>{{ header_message }}</h2>
+
+    {% for listing in listings %}
+        {% for bid in bids %}
+            {% if bid.listing == listing %}
+                <a href="{% url 'listing' listing.id %}">
+                    <div class="listing_container">
+                        <div class="listing_details" id="img_div">
+                            {% if listing.image_link != "" %}
+                                <img src="{{ listing.image_link }}" width="250px" height="270px">
+                                {% else %}
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/archive/a/ac/20070325222640%21No_image_available.svg/120px-No_image_available.svg.png" width="250px" height="270px">
+                            {% endif %}
+
+                        </div>
+                        <div class="listing_details">
+                            <h4>{{ listing.item_name }}</h4>
+                            <h5>Posted by: {{ listing.item_lister }}</h5>
+                            <h5>Price: ${{ bid.value }}</h5>
+                            <p>{{ listing.description }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% endif %}
+        {% endfor %}
+    {% empty %}
+    	<p>{{ message }}</p>
+    {% endfor %}
+{% endblock %}
