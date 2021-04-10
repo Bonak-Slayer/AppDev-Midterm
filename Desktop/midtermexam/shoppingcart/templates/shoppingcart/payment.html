@@ -1,0 +1,33 @@
+{% extends "shoppingcart/layout.html" %}
+{% load static %}
+{% block title %}
+    Payment
+{% endblock %}
+{% block body %}
+    <div class="cart-details">
+        <h1>Payment</h1>
+        {% for payment_item in payment_items %}
+            <div>
+                <center><img src="{{ payment_item.product.img_url }}" height="10%" width="10%"></center>
+                <!-- THIS IS THE FORM FOR CHANGING THE QUANTITY OF A CERTAIN PRODUCT-->
+                <h3>{{ payment_item.product.product_name }} x {{ payment_item.quantity }}</h3>
+                <h3>PHP{{ payment_item.computed_price }}</h3>
+                <h3>{{ payment_item.computed_weight }}kgs</h3>
+                <h4>{{ payment_item.product.description }}</h4>
+            </div>
+        {% endfor %}
+
+        <div class="receipt">
+            <center><img src="{% static "systemcart.png" %}" alt=""></center>
+            <h1>Cart Summary:</h1>
+            <h3>Total Weight:   {{ total_weight }}kgs</h3>
+            <h3>Subtotal:   PHP{{ subtotal }}</h3>
+            <h3>Shipping:   PHP{{ shipping_fee }}</h3>
+            <h3>Grand Total:    PHP{{ grand_total }}</h3>
+            <form method="post">
+                {% csrf_token %}
+                <center><input type="submit" value="Check Out" id="payment-accepted" name="payment"></center>
+            </form>
+        </div>
+    </div>
+{% endblock %}

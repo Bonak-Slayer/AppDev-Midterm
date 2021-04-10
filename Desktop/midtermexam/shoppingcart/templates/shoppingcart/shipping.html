@@ -1,0 +1,44 @@
+{% extends "shoppingcart/layout.html" %}
+{% load static %}
+{% block title %}
+    Shipping
+{% endblock %}
+{% block body %}
+    <center><img src="{% static "systemshipping.png" %}" alt=""></center>
+    <h1>Shipping</h1>
+    <h1>{{ error_message }}</h1>
+    {% if error_message != "The minimum weight for a shipment is 1kg." %}
+        <div class="verification-menu">
+        <form method="post">
+            {% csrf_token %}
+            <label for="">Full Name</label><br>
+            <h5 class="error-messages">{{ name_error }}</h5>
+            <input type="text" placeholder="Enter your complete name here..." name="full-name" maxlength="35">
+
+            <br><label for="">Address 1</label><br>
+            <h5 class="error-messages">{{ address_error }}</h5>
+            <input type="text" placeholder="Enter primary address here..." name="address1" maxlength="35">
+
+            <br><label for="">Address 2(optional)</label><br>
+            <input type="text" placeholder="Enter secondary address here..." name="address2" maxlength="35">
+
+            <br><label for="">Address 3(optional)</label><br>
+            <input type="text" placeholder="Enter tertiary address here..." name="address3" maxlength="35">
+
+            <br><label for="">City</label><br>
+            <h5 class="error-messages">{{ city_error }}</h5>
+            <input type="text" placeholder="Enter current city here..." name="city" maxlength="35">
+
+            <br><label for="">State/Province</label><br>
+            <h5 class="error-messages">{{ state_error }}</h5>
+            <input type="text" placeholder="Enter province here..." name="state" maxlength="35">
+
+            <br><label for="">Country</label><br>
+            <h5 class="error-messages">{{ country_error }}</h5>
+            <input type="text" placeholder="Enter country here..." name="country" maxlength="35">
+
+            <input type="submit" value="Continue">
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "shoppingcart/layout.html" %}
+{% load static %}
+{% block title %}
+    Cart
+{% endblock %}
+
+{% block body %}
+    <div class="cart-details">
+        <h1>My Cart</h1>
+        {% for cart_item in cart_items %}
+            <div>
+                <center><img src="{{ cart_item.product.img_url }}" height="10%" width="10%"></center>
+                <!-- THIS IS THE FORM FOR CHANGING THE QUANTITY OF A CERTAIN PRODUCT-->
+                <form method="post">
+                    {% csrf_token %}
+                    <h3>{{ cart_item.product.product_name }} x {{ cart_item.quantity }}</h3>
+                    <h3>Price per item: {{ cart_item.product.price }}</h3>
+                    <center>
+                        <input type="number" min="1" max="{{ cart_item.product.stock }}" name="update{{ cart_item.id }}"
+                           value="{{ cart_item.quantity }}">
+
+                        <input type="text" value="{{ cart_item.product.product_name }}"
+                               name="product_name{{ cart_item.id }}" style="display: none">
+
+                        <input type="number" name="cart_item_id" value="{{ cart_item.id }}" style="display: none">
+                        <input type="submit" value="Update">
+                    </center>
+                </form>
+                <h3>Weight per Item: {{ cart_item.product.weight }}kgs</h3>
+                <!-- THIS BUTTON WILL DELETE THE PRODUCT -->
+                <center><a href="{% url "Shop:delete" cart_item.product.product_name %}"><button>Remove From Cart</button></a></center>
+                <h4>{{ cart_item.product.description }}</h4>
+            </div>
+            {% empty %}
+            <h1>You haven't added anything to your cart yet.</h1>
+        {% endfor %}
+
+        {% if grand_total > 0 %}
+            <div class="receipt">
+                <center><img src="{% static "systemcart.png" %}" alt=""></center>
+                <h1>Cart Summary:</h1>
+                <h3>Total Weight:   {{ total_weight }}kgs</h3>
+                <h3>Subtotal:   PHP{{ subtotal }}</h3>
+                <h3>Shipping:
+                    {% if shipping_fee < 1 %}
+                        The minimum weight for a shipment is 1kg.
+                    {% else %}
+                        PHP{{ shipping_fee }}
+                    {% endif %}</h3>
+                <h3>Grand Total:    PHP{{ grand_total }}</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <center><input type="submit" value="Check Out" id="checkout" name="checkout"></center>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

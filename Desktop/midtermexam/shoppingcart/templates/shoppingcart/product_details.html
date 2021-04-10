@@ -1,0 +1,39 @@
+{% extends "shoppingcart/layout.html" %}
+{% block script %}
+    <script>
+        function computeValue(){
+            let carted_amount = document.querySelector('#carted').value;
+            let price = Number({{ price }});
+
+            let product = Number(carted_amount) * Number(price);
+            if(product % 1 == 0){
+                document.getElementById('changePrice').innerHTML = `PHP${product}.00`;
+            }else{
+                document.getElementById('changePrice').innerHTML = `PHP${product}`;
+            }
+        }
+    </script>
+{% endblock %}
+{% block title %}
+    {{ page_title }}
+{% endblock %}
+
+{% block body %}
+    <div class="product-details">
+        <h1>{{ product_name }}</h1>
+        <img src="{{ product_image }}" width="30%" height="30%">
+        <h2 id="changePrice">PHP{{ price }}</h2>
+        <h3>{{ description }}</h3>
+
+        <center>
+            <form method="post">
+                {% csrf_token %}
+                <h4>{% if stock == 0 %}Out of Stock.{% else %}{{ stock }} remaining in stock.{% endif %}</h4>
+                {% if stock > 0 %}
+                    <input type="number" name="quantity" min="1" max="{{ stock }}" value="1" oninput="computeValue()" id="carted">
+                    <input type="submit" value="Add to Cart">
+                {% endif %}
+            </form>
+        </center>
+    </div>
+{% endblock %}

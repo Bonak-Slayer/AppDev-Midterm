@@ -1,0 +1,44 @@
+{% extends "shoppingcart/layout.html" %}
+{% load static %}
+{% block title %}
+    Order Confirmation
+{% endblock %}
+{% block body %}
+    <div class="cart-details">
+        <h1>Order Confirmation</h1>
+        <div>
+            <h1>Shipping Details:</h1>
+            <h3>Name: {{ full_name }}</h3>
+            <h3>Address 1: {{ address_1 }}</h3>
+            <h3>Address 2: {{ address_2 }}</h3>
+            <h3>Address 3: {{ address_3 }}</h3>
+            <h3>City: {{ city }}</h3>
+            <h3>State: {{ state }}</h3>
+            <h3>Country: {{ country }}</h3>
+        </div>
+
+        <h1>Order Items:</h1>
+        {% for confirmation_item in confirmation_items %}
+            <div>
+                <center><img src="{{ confirmation_item.product.img_url }}" height="10%" width="10%"></center>
+                <!-- THIS IS THE FORM FOR CHANGING THE QUANTITY OF A CERTAIN PRODUCT-->
+                <h3>{{ confirmation_item.product.product_name }} x {{ confirmation_item.quantity }}</h3>
+                <h3>PHP{{ confirmation_item.computed_price }}</h3>
+                <h3>{{ confirmation_item.computed_weight }}kgs</h3>
+                <h4>{{ confirmation_item.product.description }}</h4>
+            </div>
+        {% endfor %}
+        <div class="receipt">
+            <center><img src="{% static "systemcart.png" %}" alt=""></center>
+            <h1>Cart Summary:</h1>
+            <h3>Total Weight:   {{ total_weight }}kgs</h3>
+            <h3>Subtotal:   PHP{{ subtotal }}</h3>
+            <h3>Shipping:   PHP{{ shipping_fee }}</h3>
+            <h3>Grand Total:    PHP{{ grand_total }}</h3>
+            <form method="post">
+                {% csrf_token %}
+                <center><input type="submit" value="Finish" id="order-confirmed" name="confirm"></center>
+            </form>
+        </div>
+    </div>
+{% endblock %}

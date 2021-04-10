@@ -1,0 +1,30 @@
+{% extends "shoppingcart/layout.html" %}
+{% load static %}
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block body %}
+    <center><img src="{% static "systemlogo.png" %}" alt=""></center>
+    <h1>{{ message }}</h1>
+    <div class="verification-menu">
+        <form method="post">
+            {% csrf_token %}
+            <label for="">E-mail Address</label><br>
+            <h5 class="error-messages">{{ email_error }}</h5>
+            <input type="email" placeholder="E-mail Address..." name="email">
+
+
+            <br><label for="">Password</label><br>
+            <h5 class="error-messages">{{ password_error }}</h5>
+            <input type="password" placeholder="Password..." name="password">
+            {% block additional_fields %}
+
+            {% endblock %}
+
+            <h5>{{ error_message }}</h5>
+            <input type="submit" value="{{ submit_message }}">
+        </form>
+        <a href="{% url "Shop:register" %}">{{ register_offer }}</a>
+    </div>
+{% endblock %}

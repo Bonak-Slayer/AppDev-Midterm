@@ -1,0 +1,170 @@
+/* HEADER */
+.page-header {
+    background-color: #FF8E16;
+    overflow: auto;
+    margin-bottom: 40px;
+    border: 2px solid #FF8E16;
+    border-radius: 6px;
+}
+
+.page-header a {
+    text-decoration: none;
+    color: white;
+}
+
+.page-header a:visited {
+    color: white;
+}
+
+.page-header ul {
+    list-style-type: none;
+}
+
+.page-header li {
+    float: left;
+    margin-left: 12px;
+    margin-right: 15px;
+}
+
+.text-links {
+    margin-top: 8px;
+    color: white;
+    font-family: Bahnschrift;
+    font-size: 20px;
+}
+
+/* LOGIN/REGISTER PAGE STYLES */
+.verification-menu {
+    text-align: center;
+}
+
+.verification-menu input {
+    width: 50%;
+    height: 40px;
+    margin:10px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.verification-menu label {
+    font-family: Bahnschrift Semibold;
+}
+
+.verification-menu input[type=submit] {
+    background-color: black;
+    color: white;
+}
+
+.verification-menu a {
+    color: black;
+}
+
+/* PRODUCT DETAILS PAGE */
+.product-details {
+    padding: 30px;
+    margin-bottom: 20%;
+    border: 5px solid #FF8E16;
+    border-radius: 8px;
+    width: 50%;
+    position: absolute;
+	left: 0;
+	right: 0;
+
+	margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    padding-bottom: 5%;
+}
+
+.product-details img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.product-details > h2, h3, h4{
+    text-align: center;
+    font-family: Bahnschrift Semibold;
+}
+
+
+/* HOMEPAGE DIVS */
+.menu-container {
+    display: flex;
+    border: 5px solid #FF8E16;
+    border-radius: 15px;
+}
+
+.menu-container div {
+    margin: 10px;
+    border: 3px solid #FF8E16;
+    border-radius: 15px;
+}
+
+.menu-container a {
+    text-decoration: none;
+    color: black;
+}
+
+.menu-container  a:visited {
+    color: black;
+}
+
+.menu-container div > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-details {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-details > div{
+    display: block;
+    border: 5px solid #FF8E16;
+    border-radius: 15px;
+    margin: 10px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#checkout {
+    background-color: red;
+    border: 5px solid red;
+    border-radius: 15px;
+    font-family: Bahnschrift;
+    width: 30%;
+}
+
+#payment-accepted {
+    background-color: red;
+    border: 5px solid red;
+    border-radius: 15px;
+    font-family: Bahnschrift;
+    width: 30%;
+}
+#order-confirmed {
+    background-color: red;
+    border: 5px solid red;
+    border-radius: 15px;
+    font-family: Bahnschrift;
+    width: 30%;
+}
+
+.receipt {
+    padding: 20px;
+}
+
+h1 {
+    font-family: Bahnschrift;
+    text-align: center;
+}
+
+h5{
+    font-family: Bahnschrift;
+    font-style: italic;
+    color: red;
+}

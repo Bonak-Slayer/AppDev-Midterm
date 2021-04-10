@@ -1,0 +1,20 @@
+{% extends "shoppingcart/layout.html" %}
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    <h1>Available Items</h1>
+    <div class="menu-container">
+        {% for item in items %}
+            <a href="{% url 'Shop:product_details' item.id %}">
+                <div>
+                    <img src="{{ item.img_url }}" width="30%" height="30%">
+                    <h3>PHP{{ item.price }}</h3>
+                    <h4>{{ item.description }}</h4>
+                    <h4 style="color: red">{% if item.stock == 0 %}
+                        *Out of Stock
+                    {% endif %}</h4>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
