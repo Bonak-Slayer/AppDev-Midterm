@@ -10,8 +10,8 @@
             <h1>Shipping Details:</h1>
             <h3>Name: {{ full_name }}</h3>
             <h3>Address 1: {{ address_1 }}</h3>
-            <h3>Address 2: {{ address_2 }}</h3>
-            <h3>Address 3: {{ address_3 }}</h3>
+            <h3>Address 2: {% if address_2 == "" %}Not Specified{% else %}{{ address_2 }}{% endif %}</h3>
+            <h3>Address 3: {% if address_3 == "" %}Not Specified{% else %}{{ address_3 }}{% endif %}</h3>
             <h3>City: {{ city }}</h3>
             <h3>State: {{ state }}</h3>
             <h3>Country: {{ country }}</h3>

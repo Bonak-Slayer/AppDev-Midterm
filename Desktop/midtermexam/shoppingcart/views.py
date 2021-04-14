@@ -208,17 +208,40 @@ def cart_view(request):
         #### CALCULATION OF SUBTOTAL, EXTRACTION OF SHIPPING FEE AND COMPUTATION OF GRAND TOTAL ###
     subtotal = 0
     total_weight = 0
+    remaining_weight = 0
     shipping_fee = 0
     #SUBTOTAL
     for cart_item in cart_items:
         subtotal += cart_item.quantity * cart_item.product.price
         total_weight += cart_item.quantity * cart_item.product.weight
 
-    #EXTRACT SHIPPING FEE
-    shipping_types = Shipping.objects.all()
-    for type in shipping_types:
-        if type.min_weight <= total_weight and type.max_weight >= total_weight:
-            shipping_fee = type.price
+    #EXTRACT MAX SHIPPING FEE
+    shipping_last_type = Shipping.objects.aggregate(max_weight=Max('max_weight'))
+    max_shipping_weight = shipping_last_type.get('max_weight')
+
+    #IF THE TOTAL WEIGHT IS GREATER THAN ALL OPTIONS FOR SHIPPING
+    if total_weight > max_shipping_weight:
+        remaining_weight += total_weight
+        max_shipping_price = Shipping.objects.get(max_weight=max_shipping_weight)
+
+        ##AS LONG AS THE TOTAL WEIGHT IS LARGER THAN THE MAXIMUM SHIPPING WEIGHT, DEDICATE A\
+        ##NEW, SEPARATE SHIPPING TO THE ITEMS AND RECORD THE REDUCED TOTAL WEIGHT SO THAT
+        ##THE SYSTEM CAN ASSIGN A PROPER SHIPPING TYPE
+        while(remaining_weight > max_shipping_weight):
+            shipping_fee += max_shipping_price.price
+            remaining_weight = float(remaining_weight) - max_shipping_weight
+
+        #NOW THAT THE REMAINING WEIGHT CAN BE ASSIGNED A SPECIFIC SHIPPING TYPE, DO SO IN THIS SECTION
+        if remaining_weight > 0:
+            shipping_types = Shipping.objects.all()
+            for type in shipping_types:
+                if type.min_weight <= remaining_weight and type.max_weight >= remaining_weight:
+                    shipping_fee += type.price
+    else:
+        shipping_types = Shipping.objects.all()
+        for type in shipping_types:
+            if type.min_weight <= total_weight and type.max_weight >= total_weight:
+                shipping_fee = type.price
 
     # CALCULATE GRAND TOTAL
     VAT = Decimal(subtotal * Decimal(.12)).quantize(Decimal('.01'), rounding=ROUND_UP)
@@ -230,6 +253,7 @@ def cart_view(request):
     request.session["subtotal"] = float(subtotal)
     request.session["shipping_fee"] = shipping_fee
     request.session["grand_total"] = float(grand_total)
+    request.session['remaining_weight'] = remaining_weight
 
     return render(request, "shoppingcart/cart.html", {
         "cart_items": cart_items,
@@ -252,6 +276,35 @@ def delete_item(request, item_name):
 
 @login_required(login_url="Shop:login")
 def shipping_view(request):
+    def new_shipping(shipping_type):
+        # IF BOTH ADDRESSES ARE FILLED
+        if address2 != "" and address3 != "":
+            new_shipping = Shipping_Details(shipping_type=shipping_type, shipment_owner=user, address1=address1,
+                                            address2=address2, full_name=fullname,
+                                            address3=address3, city=city, state=state, country=country)
+            new_shipping.save()
+        # WHEN ONLY THE 2ND ADDRESS IS FILLED
+        elif address2 != "":
+            new_shipping = Shipping_Details(shipping_type=shipping_type, shipment_owner=user, address1=address1,
+                                            full_name=fullname, address2=address2, city=city, state=state,
+                                            country=country)
+            new_shipping.save()
+        # IF ADDRESS 2 AND ADDRESS 3 ARE BLANK
+        elif address2 == "" and address3 == "":
+            new_shipping = Shipping_Details(shipping_type=shipping_type, shipment_owner=user, address1=address1,
+                                            full_name=fullname, city=city, state=state, country=country)
+            new_shipping.save()
+        # IF USER TRIES TO FILL OUT THE 3RD ADDRESS IMMEDIATELY
+        elif address2 == "" and address3 != "":
+            return render(request, "shoppingcart/shipping.html", {
+                "error_message": "Please fill out the required fields.",
+                "name_error": "*Required",
+                "address_error": "*Please fill out the 2nd address before filling out the 3rd one.",
+                "city_error": "*Required",
+                "state_error": "*Required",
+                "country_error": "*Required"
+            })
+
     total_weight = request.session["total_weight"]
 
     if request.method == "POST":
@@ -263,29 +316,37 @@ def shipping_view(request):
         state = request.POST["state"]
         country = request.POST["country"]
 
-        selected_type = None
+        shipping_types = Shipping.objects.all()
+        remaining_weight = 0
+        user = request.user
         if fullname != "" and address1 != "" and city != "" and state != "" and country != "":
-            shipping_types = Shipping.objects.all()
-            for type in shipping_types:
-                if type.min_weight <= total_weight and type.max_weight >= total_weight:
-                    selected_type = type
+            #ASSIGN MAXIMUM SHIPPING PRICE TO A VARIABLE
+            shipping_last_type = Shipping.objects.aggregate(max_weight=Max('max_weight'))
+            max_shipping_weight = shipping_last_type.get('max_weight')
 
-            user = User.objects.get(id=request.user.id)
+            # IF THE TOTAL WEIGHT IS GREATER THAN ALL OPTIONS FOR SHIPPING
+            if total_weight > max_shipping_weight:
+                remaining_weight += total_weight
+                max_shipping_price = Shipping.objects.get(max_weight=max_shipping_weight)
 
-            # IF BOTH ADDRESSES ARE FILLED
-            if address2 != "" and address3 != "":
-                new_shipping = Shipping_Details(shipping_type=selected_type, shipment_owner=user, address1=address1,
-                                                address2=address2, full_name=fullname,
-                                                address3=address3, city=city, state=state, country=country)
-                new_shipping.save()
-                return HttpResponseRedirect(reverse("Shop:payment"))
-                # WHEN ONLY THE 2ND ADDRESS IS FILLED
-            elif address2 != "":
-                new_shipping = Shipping_Details(shipping_type=selected_type, shipment_owner=user, address1=address1,
-                                                full_name=fullname, address2=address2, city=city, state=state,
-                                                country=country)
-                new_shipping.save()
-                return HttpResponseRedirect(reverse("Shop:payment"))
+                ##AS LONG AS THE TOTAL WEIGHT IS LARGER THAN THE MAXIMUM SHIPPING WEIGHT, DEDICATE A\
+                ##NEW, SEPARATE SHIPPING TO THE ITEMS AND RECORD THE REDUCED TOTAL WEIGHT SO THAT
+                ##THE SYSTEM CAN ASSIGN A PROPER SHIPPING TYPE
+                while (remaining_weight > max_shipping_weight):
+                    new_shipping(max_shipping_price)
+                    remaining_weight = float(remaining_weight) - max_shipping_weight
+
+                # NOW THAT THE REMAINING WEIGHT CAN BE ASSIGNED A SPECIFIC SHIPPING TYPE, DO SO IN THIS SECTION
+                if remaining_weight > 0:
+                    for type in shipping_types:
+                        if type.min_weight <= remaining_weight and type.max_weight >= remaining_weight:
+                            new_shipping(type)
+            else:
+                for type in shipping_types:
+                    if type.min_weight <= total_weight and type.max_weight >= total_weight:
+                        new_shipping(type)
+
+            return HttpResponseRedirect(reverse("Shop:payment"))
         else:
             return render(request, "shoppingcart/shipping.html", {
                 "error_message": "Please fill out the required fields.",
@@ -339,7 +400,10 @@ def confirmation_view(request):
         Cart_Item.objects.all().filter(cart=current_cart).delete()
         current_cart.delete()
 
-        request.session.flush()
+        #CREATE NEW CART FOR CUSTOMER
+        provide_cart = Cart(customer=None)
+        provide_cart.save()
+        request.session["cart_id"] = provide_cart.id
         return HttpResponseRedirect(reverse("Shop:index"))
 
     #EXTRACT DATA FOR TEMPLATE
@@ -354,10 +418,10 @@ def confirmation_view(request):
         "shipping_fee": request.session["shipping_fee"],
         "grand_total": request.session["grand_total"],
         "full_name": exact.full_name,
-        "address_1": exact.address1,
-        "address_2": exact.address2,
         "address_3": exact.address3,
         "city": exact.city,
         "state": exact.state,
-        "country": exact.country
+        "country": exact.country,
+        "address_1": exact.address1,
+        "address_2": exact.address2,
     })
