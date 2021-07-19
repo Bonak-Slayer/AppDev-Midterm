@@ -1,0 +1,52 @@
+{% extends "auctions/layout.html" %}
+{% block title %}
+    Login
+{% endblock %}
+{% block style %}
+    .login-container {
+        margin-top: 3%;
+        margin-bottom: 20%;
+    }
+
+    .form-group {
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+
+    .login {
+        width: 50%;
+    }
+
+    .registration-suggest {
+        margin-top: 2%;
+    }
+{% endblock %}
+{% block body %}
+    <div class="login-container">
+        <center>
+        <h2>Login</h2>
+
+        {% if message %}
+            <div>{{ message }}</div>
+        {% endif %}
+
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <label>Username</label>
+            <div class="form-group">
+                <input autofocus class="form-control login" type="text" name="username" placeholder="Username">
+            </div>
+            <label>Password</label>
+            <div class="form-group">
+                <input class="form-control login" type="password" name="password" placeholder="Password">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Login">
+        </form>
+
+        <div class="registration-suggest">
+            Don't have an account? <a href="{% url 'register' %}" style="color: dodgerblue">Register here.</a>
+        </div>
+        </center>
+    </div>
+
+{% endblock %}

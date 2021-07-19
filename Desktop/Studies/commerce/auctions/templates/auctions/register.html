@@ -1,0 +1,66 @@
+{% extends "auctions/layout.html" %}
+{% block title %}
+    Register
+{% endblock %}
+{% block style %}
+    .registration-container {
+        margin-top: 5%;
+        margin-bottom: 15%;
+    }
+
+    .form-group {
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+
+    .register {
+        margin-top: 3%;
+        width: 50%;
+    }
+
+    .submit-registration {
+        margin-top: 3%;
+        margin-bottom: 2%;
+    }
+
+    .link-modified-avian {
+        color: dodgerblue;
+        text-decoration: underline;
+    }
+{% endblock %}
+
+{% block body %}
+    <center>
+    <div class="registration-container">
+        <h1>Register</h1>
+        {% if message %}
+            <div>{{ message }}</div>
+        {% endif %}
+
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <label>Username</label>
+            <div class="form-group">
+                <input class="form-control register" autofocus type="text" name="username" placeholder="Username">
+            </div>
+            <label>E-Mail</label>
+            <div class="form-group">
+                <input class="form-control register" type="email" name="email" placeholder="Email Address">
+            </div>
+            <label>Password</label>
+            <div class="form-group">
+                <input class="form-control register" type="password" name="password" placeholder="Password">
+            </div>
+            <label>Confirm Password</label>
+            <div class="form-group">
+                <input class="form-control register" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <input class="btn btn-primary submit-registration" type="submit" value="Register">
+        </form>
+
+        <h6>By clicking register, you agree to our <a href="{% url 'ToS' %}" class="link-modified-avian">Terms and Conditions.</a></h6>
+        <hr>
+        <h6>Already have an account? <a href="{% url 'login' %}" class="link-modified-avian">Log In here.</a></h6>
+    </div>
+    </center>
+{% endblock %}

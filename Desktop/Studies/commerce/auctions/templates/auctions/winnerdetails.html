@@ -1,0 +1,43 @@
+{% extends "auctions/layout.html" %}
+{% block title %}
+    Claim Item
+{% endblock %}
+{% block style %}
+    .form-container {
+        margin-top: 3%;
+        margin-bottom: 15%;
+    }
+
+    .claim {
+        width: 50%;
+    }
+
+    h5 {
+        margin-bottom: 5%;
+    }
+{% endblock %}
+{% block body %}
+    <div class="form-container">
+        <center>
+            <h2>Claim Item</h2>
+            <h5>Please fill out the fields below.</h5>
+
+            <form method="post">
+                {% csrf_token %}
+                <label>Full Name</label>
+                <div class="form-group">
+                    <input autofocus class="form-control claim" type="text" name="fullname" placeholder="Full Name">
+                </div>
+                <label>Address</label>
+                <div class="form-group">
+                    <input class="form-control claim" type="text" name="address" placeholder="Address">
+                </div>
+                <label>Contact Number</label>
+                <div class="form-group">
+                    <input class="form-control claim" type="number" name="contact" placeholder="Contact Number">
+                </div>
+                <input class="btn btn-primary" type="submit" value="Finish">
+            </form>
+        </center>
+    </div>
+{% endblock %}

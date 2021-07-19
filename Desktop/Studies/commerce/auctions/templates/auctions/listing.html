@@ -1,0 +1,187 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{ listing.item_name }}
+{% endblock %}
+
+{% block style %}
+    textarea {
+        width: 80%;
+        height: 100px;
+    }
+    .bidding_section {
+        margin-top: 5%;
+        margin-bottom: 5%;
+        margin-right: 15%;
+        margin-left: 15%;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    li {
+        padding-bottom: 10px;
+    }
+
+    .listings-container {
+        margin-top: 4%;
+    }
+
+    .seller-container {
+        margin-top: 4%;
+        margin-bottom: 4%;
+    }
+
+    .form-group {
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+
+    .comments_section {
+        margin-bottom: 20%;
+        margin-left: 2.5%;
+    }
+
+    #camera-showcase {
+        padding-top: 3%;
+    }
+
+    #image-showcase {
+        margin-top: 2%;
+    }
+
+    #bid-amount {
+        width: 50%;
+    }
+
+    #stream-message {
+        margin-bottom: 5%;
+        margin-top: 3%;
+        opacity: 1;
+        transition: 1s opacity;
+    }
+
+    #comment_button {
+        margin-bottom: 3%;
+    }
+
+    #comment-divider {
+        margin-left: -2.5%;
+    }
+{% endblock %}
+
+{% block body %}
+	<div class="listings-container">
+        <center>
+        <h2>Listing: {{ listing.item_name }}</h2>
+        {% if listing.availability == True %}
+            <form method="post">
+            {% csrf_token %}
+            <input type="submit" name="watchlist_interaction" class="btn btn-primary"
+                   value="{% if request.user in listing.watchlist.all %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}">
+            </form>
+        {% endif %}
+
+        <!-- CAMERA STREAMING CONTAINER -->
+        {% if request.user == listing.item_lister and listing.availability == True %}
+        <div id="camera-showcase">
+            <video id="localVideo" autoplay playsinline></video>
+            <h4 id="stream-message"></h4>
+        </div>
+            <button id="startButton" class="btn btn-outline-primary">Begin Streaming</button>
+            <button id="endButton" class="btn btn-outline-primary">End Stream</button>
+        {% else %}
+            <video id="remoteVideo" autoplay playsinline></video>
+        {% endif %}
+
+        <!--  IMAGE CONTAINER  -->
+        <div id="image-showcase">
+            {% if listing.image_file.url != "" %}
+                <img src="{{ listing.image_file.url }}" width="40%" height="40%">
+            {% else %}
+                <img src="{% static 'auctions/no_image_provided.png' %}" height="270px" width="350px" alt="">
+            {% endif %}
+        </div>
+        </center>
+    </div>
+
+	<!-- BIDDING FEATURE -->
+	<div class="bidding_section">
+        <center>
+        <h5>{{ listing.description }}</h5>
+        <h3>PHP{{ bid_value }}</h3>
+
+        {% if listing.availability == False %}
+            <p>This auction has been closed.</p>
+            {% if request.user == bidder and request.user != listing.item_lister %}
+                <p>You have won this auction!</p>
+                <a href="{% url 'email' listing.item_name %}"><button class="btn btn-outline-primary">Fill out this form to claim your item</button></a>
+            {% elif request.user == bidder and request.user == listing.item_lister %}
+                <p>Unfortunately, your item was not successfully auctioned.</p>
+            {% endif %}
+        {% else %}
+            <p>{{ bid_count }} bid(s) so far.
+                {% if request.user != listing.item_lister and request.user == bidder %} Your bid is the current bid.
+                {% elif bid_count == 1 %} This is the starting bid.{% endif %}</p>
+        {% endif %}
+        <h4>{{ message }}</h4>
+
+        <!-- IF LISTING IS AVAILABLE, THEN MAKE BIDDING FEATURE ACCESSIBLE -->
+        {% if listing.availability == True %}
+            {% if request.user != listing.item_lister %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="number" name="bid_placement" placeholder="Enter amount here..." class="form-control" id="bid-amount" step=".01">
+                    <hr>
+                    <input type="submit" value="Place Bid" class="btn btn-outline-primary">
+                </form>
+            {% endif %}
+        {% endif %}
+
+        <div class="seller-container">
+            {% if request.user == listing.item_lister %}
+                {% if listing.availability == True %}
+                    <h5>You listed this item. Do you want to close the auction now?</h5>
+                    <form method="post">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-outline-primary" name="close_auction" value="Close Auction">
+                    </form>
+                {% else %}
+                    <h3>You have closed this auction.</h3>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <h2>Details</h2>
+        <p>Item Lister: {{ listing.item_lister }}</p>
+        <p>Category: {{ listing.item_category.category_name }}</p>
+        </center>
+    </div>
+
+	<!-- COMMENT SECTION -->
+	<div class="comments_section">
+        <form method="post">
+            {% csrf_token %}
+            <h3>Commenting as {{ request.user }}:</h3>
+            <textarea name="comment" placeholder="Enter your comment here..."></textarea>
+            <br>
+            <input type="submit" class="btn btn-primary" value="Comment" id="comment_button">
+        </form>
+        <hr id="comment-divider">
+        <h3>Comments</h3>
+		<ul>
+		{% for comment in comments %}
+			<h6>{{ comment.commenter }} commented:</h6>
+			<li>{{ comment.text }}</li>
+		{% empty %}
+			<p>There are no comments yet.</p>
+		{% endfor %}
+		</ul>
+	</div>
+
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="{% static 'auctions/client.js' %}"></script>
+    <script src="{% static 'auctions/styling.js' %}"></script>
+{% endblock %}

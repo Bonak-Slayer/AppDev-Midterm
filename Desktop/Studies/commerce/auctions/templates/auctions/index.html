@@ -1,0 +1,125 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block style %}
+    .listings_container{
+        margin-top: 5%;
+        margin-bottom: 20%;
+    }
+
+	.listing_container {
+		border: 3px solid;
+		border-color: black;
+		border-radius: 15px;
+		padding: 10px;
+		margin: 1%;
+		height: 10%;
+		width: 30%;
+        display: inline-flex;
+	}
+
+    .h4-modified {
+        color: dodgerblue;
+        font-size: 12pt;
+    }
+
+    .h5-modified {
+        font-size: 10pt;
+    }
+
+    .p-modified {
+        font-size: 10pt;
+    }
+
+	.listing_details {
+		padding-right: 10px;
+		float: left;
+	}
+
+    .top-container {
+        margin-bottom: 5%;
+    }
+
+    .form-control {
+        width: 50%;
+        margin-bottom: 1%;
+    }
+
+    .winner {
+        color: #EE3030;
+    }
+
+	#img_div {
+		padding-right: 5px;
+	}
+
+    #details {
+        padding-top: 3%;
+        margin-left: 4%;
+    }
+
+	h4 {
+		padding-top: 10px;
+	}
+{% endblock %}
+
+{% block body %}
+    <div class="listings_container">
+        <div class="top-container">
+            <center>
+                <h2>{{ header_message }}</h2>
+                <p>{{ no_listings }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="text" placeholder="Search Listing..." class="form-control" name="searchListing">
+                    <input type="submit" value="Search" class="btn btn-primary">
+                </form>
+            </center>
+        </div>
+
+        <center>
+        <div class="all_listings">
+            {% for listing in listings %}
+                {% for bid in bids %}
+                    {% if bid.listing == listing %}
+                        <a href="{% url 'listing' listing.id %}">
+                            <div class="listing_container">
+                                <div class="listing_details" id="img_div">
+                                    {% if listing.image_file.url != "" %}
+                                        <img src="{{ listing.image_file.url }}"  height="170px" width="150px">
+                                        {% else %}
+                                        <img src="{% static 'auctions/no_image_provided.png' %}" height="170px" width="150px" alt="">
+                                    {% endif %}
+                                </div>
+
+                                <div class="listing_details" id="details">
+                                    <h4 class="h4-modified">{{ listing.short_title }}</h4>
+                                    <h5 class="h5-modified">Posted by: {{ listing.short_lister }}</h5>
+                                    {% if bid.bidder == request.user and listing.availability == False %}
+                                        {% if listing.item_lister == request.user %}
+                                            <h5 class="h5-modified winner">You have closed this auction.</h5>
+                                        {% else %}
+                                            <h5 class="h5-modified winner">YOU WON THIS AUCTION!</h5>
+                                        {% endif %}
+                                    {% elif listing.availability == False %}
+                                        <h5 class="h5-modified">This auction has been closed.</h5>
+                                    {% else %}
+                                        <h5 class="h5-modified">Price: PHP{{ bid.value }}</h5>
+                                    {% endif %}
+                                    <p class="p-modified">{{ listing.short_desc }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% empty %}
+                <center><p>{{ message }}</p></center>
+            {% endfor %}
+        </div>
+        </center>
+    </div>
+{% endblock %}

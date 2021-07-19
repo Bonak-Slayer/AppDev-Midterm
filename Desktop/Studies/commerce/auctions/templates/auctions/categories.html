@@ -1,0 +1,56 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    Categories
+{% endblock %}
+{% block style %}
+    .category-container {
+        margin-top: 5%;
+        margin-bottom: 20%;
+    }
+
+    .list-container {
+        margin-left: 1%;
+    }
+
+    .form-group {
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+
+    button {
+        margin-top: .5%;
+    }
+
+    input {
+        margin-bottom: 2%;
+    }
+
+    #search {
+        width: 40%;
+    }
+
+{% endblock %}
+{% block body %}
+	<div class="category-container">
+        <center><h2>Categories</h2></center>
+
+        <center>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="Search category..." class="form-control" name="search_category" id="search">
+            <input type="submit" class="btn btn-primary" value="Search">
+        </form>
+        </center>
+
+        <div class="list-container">
+            {% for category in category_list %}
+                    <a href="{% url 'filtered' category.id %}" >
+                        <button type="button" class="btn btn-outline-primary">{{ category.category_name }}</button>
+                    </a>
+                {% empty %}
+                    <center><p>No such category.</p></center>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
